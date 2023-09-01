@@ -1,0 +1,15 @@
+
+:root{
+    --mau:red;
+}
+#first{
+    color:var(--mau);
+}
+p{
+    color: var(--mau);
+}
+.box{
+   height: 100px;
+   width: 150px;
+   color: red;
+}
