@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Mặt Trời 3D - VŨ VĂN TRIỆU</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(circle at center, #0a0a2a 0%, #000000 80%);
+            color: white;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        .ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ff4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4a4a8a, #2c2c5c);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            background: linear-gradient(45deg, #5a5aaa, #3c3c7c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .sun-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            z-index: 200;
+            max-width: 500px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+        }
+        
+        .sun-hint h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .sun-hint p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .close-hint {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .close-hint:hover {
+            background: #ffcc00;
+            transform: scale(1.05);
+        }
+        
+        .instructions {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions b {
+            color: #ffd700;
+        }
+        
+        .planet-info {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            max-width: 600px;
+            pointer-events: none;
+        }
+        
+        .planet-info.visible {
+            opacity: 1;
+        }
+        
+        .planet-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+        
+        .planet-desc {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        .loading-text {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #ffd700;
+        }
+        
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffd700;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .mars-hint {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid #cd5c5c;
+            box-shadow: 0 0 20px rgba(205, 92, 92, 0.5);
+            max-width: 300px;
+            animation: marsPulse 3s infinite;
+        }
+        
+        @keyframes marsPulse {
+            0% { box-shadow: 0 0 15px rgba(205, 92, 92, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(205, 92, 92, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(205, 92, 92, 0.5); }
+        }
+        
+        .mars-hint b {
+            color: #cd5c5c;
+        }
+
+        .cursor-hint {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .new-feature-hint {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid #00bfff;
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+            max-width: 300px;
+            animation: newFeaturePulse 3s infinite;
+        }
+        
+        @keyframes newFeaturePulse {
+            0% { box-shadow: 0 0 15px rgba(0, 191, 255, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(0, 191, 255, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(0, 191, 255, 0.5); }
+        }
+        
+        .new-feature-hint b {
+            color: #00bfff;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+        <div class="loading-text">Đang tải hệ mặt trời...</div>
+    </div>
+
+    <div class="sun-hint" id="sunHint">
+        <h3>🌟 Khám phá Hệ Mặt Trời 🌟</h3>
+        <p>Click vào <strong>Mặt Trời</strong> để truy cập trang chủ của <strong>VŨ VĂN TRIỆU</strong>!</p>
+        <p>Click vào <strong style="color: #cd5c5c;">Sao Hỏa</strong> để xem các đồ án!</p>
+        <p>Click vào <strong style="color: #00bfff;">Sao Thủy</strong> để xem thông tin về tôi!</p>
+        <p>Click vào <strong style="color: #9370db;">Sao Thiên Vương</strong> để xem kỹ năng!</p>
+        <p>Click vào <strong style="color: #20b2aa;">Sao Hải Vương</strong> để xem kinh nghiệm!</p>
+        <button class="close-hint" onclick="document.getElementById('sunHint').classList.add('hidden')">Bắt đầu khám phá</button>
+    </div>
+
+    <div class="mars-hint" id="marsHint">
+        <p><b>💡 Mẹo:</b> Click vào <b style="color: #cd5c5c;">Sao Hỏa</b> (hành tinh đỏ) để xem trang đồ án 3D!</p>
+    </div>
+    
+    <div class="new-feature-hint" id="newFeatureHint">
+        <p><b>🆕 Tính năng mới:</b> Sử dụng nút <b style="color: #00bfff;">Góc Nhìn Mặc Định</b> để quay về góc nhìn ban đầu!</p>
+    </div>
+
+    <div class="ui-container">
+        <div class="title">HỆ MẶT TRỜI 3D - VŨ VĂN TRIỆU</div>
+        <div class="controls">
+            <button id="speedDown">Giảm Tốc Độ</button>
+            <button id="toggleMotion">Tạm Dừng</button>
+            <button id="speedUp">Tăng Tốc Độ</button>
+            <button id="resetView">Góc Nhìn Mặc Định</button>
+        </div>
+    </div>
+
+    <div class="planet-info">
+        <div class="planet-name">Mặt Trời</div>
+        <div class="planet-desc">Ngôi sao ở trung tâm hệ Mặt Trời, chiếm 99.86% khối lượng của toàn hệ. Click để vào trang chủ của VŨ VĂN TRIỆU!</div>
+    </div>
+
+    <div class="instructions">
+        <b>Hướng dẫn:</b><br>
+        - Kéo chuột để xoay góc nhìn<br>
+        - Cuộn chuột để phóng to/thu nhỏ<br>
+        - <b>Di chuột vào hành tinh để xem thông tin</b><br>
+        - <b>Click vào Mặt Trời để vào trang chủ</b><br>
+        - <b style="color: #cd5c5c;">Click vào Sao Hỏa để xem đồ án</b><br>
+        - <b style="color: #00bfff;">Click vào Sao Thủy để xem thông tin về tôi</b><br>
+        - <b style="color: #9370db;">Click vào Sao Thiên Vương để xem kỹ năng</b><br>
+        - <b style="color: #20b2aa;">Click vào Sao Hải Vương để xem kinh nghiệm</b>
+    </div>
+
+    <div class="cursor-hint" id="cursorHint"></div>
+
+    <script>
+        // Đợi tải trang
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading').style.display = 'none';
+                init();
+            }, 1500);
+        });
+
+        function init() {
+            // Thiết lập scene, camera, renderer
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // Thiết lập điều khiển chuột
+            let isDragging = false;
+            let previousMousePosition = {
+                x: 0,
+                y: 0
+            };
+            let rotationSpeed = 0.005;
+            let cameraDistance = 50;
+            let cameraRotationX = 0;
+            let cameraRotationY = 0;
+            
+            // Lưu góc nhìn mặc định
+            const defaultCameraDistance = 50;
+            const defaultCameraRotationX = 0;
+            const defaultCameraRotationY = 0;
+
+            // Tham chiếu đến phần tử hiển thị thông tin
+            const planetInfo = document.querySelector('.planet-info');
+            const planetName = document.querySelector('.planet-name');
+            const planetDesc = document.querySelector('.planet-desc');
+            const cursorHint = document.getElementById('cursorHint');
+
+            // Xử lý sự kiện chuột
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                const mouse = new THREE.Vector2();
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+
+                // Kiểm tra xem có di chuột vào Mặt Trời không
+                const sunIntersects = raycaster.intersectObject(sun);
+                if (sunIntersects.length > 0) {
+                    planetName.textContent = "Mặt Trời";
+                    planetDesc.textContent = "Ngôi sao ở trung tâm hệ Mặt Trời. Click để vào trang chủ!";
+                    planetInfo.classList.add('visible');
+                    cursorHint.textContent = "Click để vào trang chủ";
+                    cursorHint.style.opacity = "1";
+                    cursorHint.style.left = e.pageX + 15 + 'px';
+                    cursorHint.style.top = e.pageY + 15 + 'px';
+                    return;
+                }
+
+                // Kiểm tra xem có di chuột vào hành tinh không
+                const intersects = raycaster.intersectObjects(planetMeshes.map(p => p.mesh));
+                if (intersects.length > 0) {
+                    const planet = intersects[0].object;
+                    planetName.textContent = planet.userData.planetName;
+                    planetDesc.textContent = planet.userData.planetInfo;
+                    planetInfo.classList.add('visible');
+                    
+                    // Hiển thị gợi ý cho các hành tinh có liên kết
+                    if (planet.userData.link) {
+                        let hintText = "";
+                        if (planet.userData.planetName === 'Mars') {
+                            hintText = "Click để xem đồ án";
+                        } else if (planet.userData.planetName === 'Mercury') {
+                            hintText = "Click để xem thông tin về tôi";
+                        } else if (planet.userData.planetName === 'Uranus') {
+                            hintText = "Click để xem kỹ năng";
+                        } else if (planet.userData.planetName === 'Neptune') {
+                            hintText = "Click để xem kinh nghiệm";
+                        }
+                        
+                        cursorHint.textContent = hintText;
+                        cursorHint.style.opacity = "1";
+                        cursorHint.style.left = e.pageX + 15 + 'px';
+                        cursorHint.style.top = e.pageY + 15 + 'px';
+                    } else {
+                        cursorHint.style.opacity = "0";
+                    }
+                } else {
+                    planetInfo.classList.remove('visible');
+                    cursorHint.style.opacity = "0";
+                }
+
+                if (isDragging) {
+                    const deltaMove = {
+                        x: e.clientX - previousMousePosition.x,
+                        y: e.clientY - previousMousePosition.y
+                    };
+
+                    cameraRotationY += deltaMove.x * rotationSpeed;
+                    cameraRotationX += deltaMove.y * rotationSpeed;
+
+                    // Giới hạn góc nhìn theo trục X
+                    cameraRotationX = Math.max(-Math.PI/2, Math.min(Math.PI/2, cameraRotationX));
+                }
+                
+                previousMousePosition = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance += e.deltaY * 0.01;
+                cameraDistance = Math.max(30, Math.min(100, cameraDistance));
+            });
+
+            // Ánh sáng
+            const pointLight = new THREE.PointLight(0xffffff, 2, 1000);
+            pointLight.position.set(0, 0, 0);
+            scene.add(pointLight);
+            
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+            scene.add(ambientLight);
+
+            // Tạo hiệu ứng ánh sáng cho Mặt Trời
+            const sunLight = new THREE.PointLight(0xffd700, 1.5, 200);
+            sunLight.position.set(0, 0, 0);
+            scene.add(sunLight);
+
+            // Mặt trời
+            const sunGeometry = new THREE.SphereGeometry(8, 32, 32);
+            const sunMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffd700,
+                map: (() => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 512;
+                    canvas.height = 512;
+                    const context = canvas.getContext('2d');
+                    
+                    // Tạo gradient cho mặt trời
+                    const gradient = context.createRadialGradient(256, 256, 0, 256, 256, 256);
+                    gradient.addColorStop(0, '#ffd700');
+                    gradient.addColorStop(0.5, '#ff8c00');
+                    gradient.addColorStop(1, '#ff4500');
+                    
+                    context.fillStyle = gradient;
+                    context.fillRect(0, 0, 512, 512);
+                    
+                    // Thêm một số chi tiết ngẫu nhiên
+                    context.globalCompositeOperation = 'overlay';
+                    for (let i = 0; i < 1000; i++) {
+                        const x = Math.random() * 512;
+                        const y = Math.random() * 512;
+                        const radius = Math.random() * 3;
+                        const brightness = Math.random() * 100 + 155;
+                        context.fillStyle = `rgb(${brightness}, ${brightness-50}, 0)`;
+                        context.beginPath();
+                        context.arc(x, y, radius, 0, Math.PI * 2);
+                        context.fill();
+                    }
+                    
+                    return new THREE.CanvasTexture(canvas);
+                })()
+            });
+            const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+            sun.userData = { 
+                isSun: true,
+                info: 'Click để truy cập trang chủ của VŨ VĂN TRIỆU!',
+                name: 'TRANG CHỦ'
+            };
+            scene.add(sun);
+
+            // Thêm hiệu ứng corona cho Mặt Trời
+            const coronaGeometry = new THREE.SphereGeometry(8.5, 32, 32);
+            const coronaMaterial = new THREE.MeshBasicMaterial({
+                color: 0xff4500,
+                transparent: true,
+                opacity: 0.3
+            });
+            const corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
+            scene.add(corona);
+
+            // Hành tinh
+            const planets = [
+                {
+                    name: 'Mercury',
+                    radius: 1.5,
+                    distance: 15,
+                    speed: 0.02,
+                    color: 0x00bfff, // Màu xanh dương sáng
+                    info: 'Hành tinh gần Mặt Trời nhất. Click để xem thông tin về VŨ VĂN TRIỆU!',
+                    link: 'thongtincanhan.html' // Trang thông tin cá nhân
+                },
+                {
+                    name: 'Venus',
+                    radius: 2.2,
+                    distance: 20,
+                    speed: 0.015,
+                    color: 0xf4a460,
+                    info: 'Hành tinh nóng nhất với nhiệt độ bề mặt lên đến 462°C, có bầu khí quyển dày đặc chứa đầy khí CO2.'
+                },
+                {
+                    name: 'Earth',
+                    radius: 2.5,
+                    distance: 25,
+                    speed: 0.01,
+                    color: 0x1e90ff,
+                    info: 'Hành tinh duy nhất được biết đến có sự sống, có một mặt trăng tự nhiên, 71% bề mặt là nước.'
+                },
+                {
+                    name: 'Mars',
+                    radius: 2.0,
+                    distance: 30,
+                    speed: 0.008,
+                    color: 0xcd5c5c,
+                    info: 'Hành tinh đỏ với bề mặt nhiều bụi và đá. Click để xem các đồ án của VŨ VĂN TRIỆU!',
+                    link: 'doancanhan.html' // Trang đồ án 3D
+                },
+                {
+                    name: 'Jupiter',
+                    radius: 5.0,
+                    distance: 40,
+                    speed: 0.005,
+                    color: 0xd8ca9d,
+                    info: 'Hành tinh lớn nhất trong hệ Mặt Trời, là hành tinh khí khổng lồ với Vết Đỏ Lớn - một cơn bão khổng lồ.'
+                },
+                {
+                    name: 'Saturn',
+                    radius: 4.5,
+                    distance: 50,
+                    speed: 0.004,
+                    color: 0xf0e6a2,
+                    info: 'Hành tinh được biết đến với hệ vành đai rộng lớn gồm băng, đá và bụi, có hơn 80 mặt trăng.'
+                },
+                {
+                    name: 'Uranus',
+                    radius: 3.5,
+                    distance: 60,
+                    speed: 0.003,
+                    color: 0x9370db, // Màu tím
+                    info: 'Hành tinh khí khổng lồ với trục nghiêng gần 90 độ. Click để xem các kỹ năng của VŨ VĂN TRIỆU!',
+                    link: 'kynang.html' // Trang kỹ năng
+                },
+                {
+                    name: 'Neptune',
+                    radius: 3.5,
+                    distance: 70,
+                    speed: 0.002,
+                    color: 0x20b2aa, // Màu xanh biển sáng
+                    info: 'Hành tinh xa nhất trong hệ Mặt Trời. Click để xem kinh nghiệm làm việc của VŨ VĂN TRIỆU!',
+                    link: 'kinhnghiem.html' // Trang kinh nghiệm
+                }
+            ];
+
+            const planetMeshes = [];
+            const orbitCurves = [];
+
+            // Tạo hành tinh và quỹ đạo
+            planets.forEach(planet => {
+                // Hành tinh
+                const geometry = new THREE.SphereGeometry(planet.radius, 32, 32);
+                const material = new THREE.MeshStandardMaterial({
+                    color: planet.color,
+                    roughness: 0.8,
+                    metalness: 0.1
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = planet.distance;
+                mesh.userData = { 
+                    planetInfo: planet.info, 
+                    planetName: planet.name,
+                    isPlanet: true,
+                    link: planet.link || null
+                };
+                scene.add(mesh);
+                
+                planetMeshes.push({ 
+                    mesh, 
+                    distance: planet.distance, 
+                    speed: planet.speed, 
+                    spin: 0.02,
+                    angle: Math.random() * Math.PI * 2 // Góc ngẫu nhiên ban đầu
+                });
+
+                // Quỹ đạo (vòng dây)
+                const curve = new THREE.EllipseCurve(
+                    0, 0,
+                    planet.distance, planet.distance * 0.6, // Elip: height = 60% width
+                    0, 2 * Math.PI,
+                    false,
+                    0
+                );
+                const points = curve.getPoints(100);
+                const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                const orbitMaterial = new THREE.LineDashedMaterial({
+                    color: 0xffffff,
+                    dashSize: 0.5,
+                    gapSize: 0.5,
+                    opacity: 0.3,
+                    transparent: true
+                });
+                const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+                orbit.computeLineDistances();
+                orbit.rotation.x = Math.PI / 6; // Nghiêng quỹ đạo 30 độ
+                scene.add(orbit);
+                orbitCurves.push(orbit);
+            });
+
+            // Ngôi sao nền
+            const starGeometry = new THREE.BufferGeometry();
+            const starVertices = [];
+            for (let i = 0; i < 5000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({ 
+                color: 0xffffff, 
+                size: 1.5, 
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+
+            // Camera
+            camera.position.set(0, 25, 50);
+            camera.lookAt(0, 0, 0);
+
+            // Biến điều khiển
+            let animationSpeed = 1;
+            let isAnimating = true;
+
+            // Xử lý sự kiện click trên hành tinh
+            renderer.domElement.addEventListener('click', (event) => {
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+
+                // Kiểm tra xem có click vào Mặt Trời không
+                const sunIntersects = raycaster.intersectObject(sun);
+                
+                if (sunIntersects.length > 0) {
+                    // Click vào Mặt Trời - chuyển hướng đến trang chủ
+                    window.location.href = 'trangchu.html';
+                    return;
+                }
+
+                // Kiểm tra xem có click vào hành tinh không
+                const intersects = raycaster.intersectObjects(planetMeshes.map(p => p.mesh));
+                
+                if (intersects.length > 0) {
+                    const planet = intersects[0].object;
+                    
+                    // Nếu hành tinh có liên kết
+                    if (planet.userData.link) {
+                        window.location.href = planet.userData.link;
+                        return;
+                    }
+                }
+            });
+
+            // Xử lý nút điều khiển
+            document.getElementById('speedDown').addEventListener('click', () => {
+                animationSpeed = Math.max(0.1, animationSpeed - 0.5);
+            });
+
+            document.getElementById('speedUp').addEventListener('click', () => {
+                animationSpeed = Math.min(5, animationSpeed + 0.5);
+            });
+
+            document.getElementById('toggleMotion').addEventListener('click', () => {
+                isAnimating = !isAnimating;
+                document.getElementById('toggleMotion').textContent = isAnimating ? 'Tạm Dừng' : 'Tiếp Tục';
+            });
+            
+            // Nút quay về góc nhìn mặc định
+            document.getElementById('resetView').addEventListener('click', () => {
+                cameraDistance = defaultCameraDistance;
+                cameraRotationX = defaultCameraRotationX;
+                cameraRotationY = defaultCameraRotationY;
+            });
+
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+
+                if (isAnimating) {
+                    // Xoay hành tinh quanh mặt trời và tự quay
+                    planetMeshes.forEach((planet) => {
+                        planet.angle += planet.speed * animationSpeed * 0.01;
+                        planet.mesh.position.x = planet.distance * Math.cos(planet.angle);
+                        planet.mesh.position.z = planet.distance * 0.6 * Math.sin(planet.angle); // Elip
+                        planet.mesh.rotation.y += planet.spin * animationSpeed * 0.01; // Tự quay
+                    });
+
+                    // Xoay mặt trời
+                    sun.rotation.y += 0.005 * animationSpeed;
+                    corona.rotation.y += 0.002 * animationSpeed;
+                }
+
+                // Cập nhật vị trí camera
+                camera.position.x = cameraDistance * Math.sin(cameraRotationY) * Math.cos(cameraRotationX);
+                camera.position.y = cameraDistance * Math.sin(cameraRotationX);
+                camera.position.z = cameraDistance * Math.cos(cameraRotationY) * Math.cos(cameraRotationX);
+                camera.lookAt(0, 0, 0);
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Xử lý resize cửa sổ
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+    </script>
+</body>
+</html>

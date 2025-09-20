@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Tin Cá Nhân - VŨ VĂN TRIỆU</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(circle at center, #0a0a2a 0%, #000000 80%);
+            color: white;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 36px;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ff4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #4a4a8a, #2c2c5c);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(45deg, #5a5aaa, #3c3c7c);
+            transform: translateY(-2px);
+        }
+        
+        .profile-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .profile-image {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .profile-image img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 50%;
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .profile-details {
+            flex: 2;
+            min-width: 300px;
+        }
+        
+        h2 {
+            color: #ffd700;
+            margin: 20px 0 10px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding-bottom: 5px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #ffd700;
+        }
+        
+        .info-item strong {
+            color: #ffd700;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 215, 0, 0.3);
+            color: #aaa;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-content {
+                flex-direction: column;
+            }
+            
+            .profile-image, .profile-details {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="solar.html" class="back-button">← Quay lại Hệ Mặt Trời</a>
+        
+        <header>
+            <h1>Thông Tin Cá Nhân</h1>
+            <p>Chào mừng đến với trang giới thiệu về VŨ VĂN TRIỆU</p>
+        </header>
+        
+        <div class="profile-content">
+            <div class="profile-image">
+                <img src="https://via.placeholder.com/300" alt="VŨ VĂN TRIỆU">
+                <h2>VŨ VĂN TRIỆU</h2>
+                <p>Lập trình viên & Nhà phát triển Web</p>
+            </div>
+            
+            <div class="profile-details">
+                <h2>Giới Thiệu</h2>
+                <p>Xin chào! Tôi là VŨ VĂN TRIỆU, một lập trình viên đam mê sáng tạo và phát triển các ứng dụng web hiện đại. Với kinh nghiệm trong việc xây dựng trang web tương tác và ứng dụng 3D, tôi luôn tìm kiếm những thử thách mới để nâng cao kỹ năng và mở rộng kiến thức.</p>
+                
+                <h2>Thông Tin Cá Nhân</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Ngày sinh:</strong> 15/08/1995
+                    </div>
+                    <div class="info-item">
+                        <strong>Địa chỉ:</strong> Hà Nội, Việt Nam
+                    </div>
+                    <div class="info-item">
+                        <strong>Email:</strong> khanhnguyen@example.com
+                    </div>
+                    <div class="info-item">
+                        <strong>Điện thoại:</strong> 0123 456 789
+                    </div>
+                </div>
+                
+                <h2>Học Vấn</h2>
+                <p><strong>Đại học Công nghệ - ĐHQGHN</strong> (2013-2017)</p>
+                <p>Chuyên ngành: Khoa học Máy tính</p>
+                <p>Bằng: Kỹ sư Công nghệ Thông tin</p>
+                
+                <h2>Sở Thích</h2>
+                <p>Lập trình, phát triển game, nhiếp ảnh, du lịch và khám phá công nghệ mới.</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 VŨ VĂN TRIỆU. Tất cả các quyền được bảo lưu.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Cylinder Carousel</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, #0f2027, #203a43, #2c5364);
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      position: absolute;
+      top: 30px;
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 3s infinite alternate;
+      text-shadow: 0 0 15px rgba(157, 0, 255, 0.5);
+    }
+
+    @keyframes pulse {
+      from { text-shadow: 0 0 15px rgba(157, 0, 255, 0.5); }
+      to   { text-shadow: 0 0 25px rgba(0, 200, 255, 0.8); }
+    }
+
+    .carousel {
+      position: relative;
+      width: 250px;
+      height: 350px;
+      transform-style: preserve-3d;
+      animation: rotate 15s infinite linear;
+    }
+
+    .card {
+      position: absolute;
+      width: 220px;
+      height: 320px;
+      background: rgba(20, 20, 40, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      color: #fff;
+      padding: 20px;
+      backface-visibility: hidden;
+      text-align: center;
+    }
+
+    .card h2 {
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #66d9ef;
+    }
+
+    @keyframes rotate {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>3D Cylinder Carousel</h1>
+  <div class="carousel" id="carousel">
+    <div class="card"><h2>ĐỒ ÁN 1</h2><p>Some description...</p></div>
+    <div class="card"><h2>ĐỒ ÁN 2</h2><p>Some description...</p></div>
+    <div class="card"><h2>ĐỒ ÁN 3</h2><p>Some description...</p></div>
+    <div class="card"><h2>ĐỒ ÁN 4</h2><p>Some description...</p></div>
+    <div class="card"><h2>System Crash</h2><p>Some description...</p></div>
+  </div>
+
+  <script>
+    const carousel = document.getElementById("carousel");
+    const cards = carousel.children;
+    const cardCount = cards.length;
+    const angle = 360 / cardCount;
+
+    for (let i = 0; i < cardCount; i++) {
+      // giảm khoảng cách Z để các card gần nhau hơn như hình trụ
+      cards[i].style.transform = `rotateY(${i * angle}deg) translateZ(300px)`;
+    }
+  </script>
+
+</body>
+</html>
